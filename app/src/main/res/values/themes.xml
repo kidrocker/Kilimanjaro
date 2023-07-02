@@ -2,6 +2,13 @@
 <resources>
 
     <style name="Theme.Kilimanjaro" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
+        <item name="android:statusBarColor">#FF008B00</item>
+    </style>
+
+    <style name="Theme.Kilimanjaro.Splash" parent="Theme.Kilimanjaro">
+        <item name="android:statusBarColor">#FF008B00</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_kilimanjaro</item>
+        <item name="windowSplashScreenBackground">#FFffffff</item>
+        <item name="postSplashScreenTheme">@style/Theme.Kilimanjaro</item>
     </style>
 </resources>
