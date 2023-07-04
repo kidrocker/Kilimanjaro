@@ -1,4 +1,4 @@
-package com.dvt.kilimanjaro.ui.theme
+package com.dvt.uicomponents.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

@@ -1,4 +1,4 @@
-package com.dvt.kilimanjaro.ui.theme
+package com.dvt.uicomponents.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -42,3 +42,6 @@ fun KilimanjaroTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compo
         content = content
     )
 }
+
+
+
