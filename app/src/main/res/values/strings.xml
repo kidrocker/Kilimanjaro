@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Kilimanjaro</string>
+    <string name="loading">Loading data</string>
 </resources>

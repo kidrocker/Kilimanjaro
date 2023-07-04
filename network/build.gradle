@@ -19,14 +19,17 @@ android {
     }
 
     buildTypes {
+        def appId = 'ce14f7c79e278249ed004efa00713b58'
         debug {
-            minifyEnabled  false
+            minifyEnabled false
             buildConfigField "String", "API_URL", "\"https://api.openweathermap.org/data/2.5/\""
+            buildConfigField "String", "APP_ID","\"${appId}\""
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "API_URL", "\"https://api.openweathermap.org/data/2.5/\""
+            buildConfigField "String", "APP_ID", "\"${appId}\""
         }
     }
     compileOptions {
@@ -39,7 +42,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
@@ -51,8 +53,8 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1'
 
     // hilt
-    implementation "com.google.dagger:hilt-android:2.44.2"
-    kapt "com.google.dagger:hilt-compiler:2.44.2"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"

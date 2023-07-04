@@ -15,5 +15,6 @@ dependencyResolutionManagement {
 rootProject.name = "Kilimanjaro"
 include ':app'
 include ':uiComponents'
-include ':data'
 include ':network'
+include ':domain'
+include ':database'

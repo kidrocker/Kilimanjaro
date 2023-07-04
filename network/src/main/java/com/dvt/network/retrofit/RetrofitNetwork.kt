@@ -7,12 +7,11 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
-private const val NetworkBaseUrl = BuildConfig.API_URL
 
 @Singleton
 class RetrofitNetwork @Inject constructor(
@@ -21,8 +20,21 @@ class RetrofitNetwork @Inject constructor(
 ) : NetworkDataSource {
 
     private val networkApi = Retrofit.Builder()
-        .baseUrl(NetworkBaseUrl)
+        .baseUrl(BuildConfig.API_URL)
         .callFactory(okhttpCallFactory)
+        .client(
+            OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val url = chain
+                        .request()
+                        .url
+                        .newBuilder()
+                        .addQueryParameter("appid", BuildConfig.APP_ID)
+                        .build()
+                    chain.proceed(chain.request().newBuilder().url(url).build())
+                }
+                .build()
+        )
         .addConverterFactory(
             networkJson.asConverterFactory("application/json".toMediaType()),
         )

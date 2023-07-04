@@ -16,11 +16,11 @@ data class NetworkWeather(
 
 @Serializable
 data class Main(
-    val temp: Double? = null,
-    val feelsLike: Double? = null,
-    val tempMin: Double? = null,
-    val tempMax: Double? = null,
-    val pressure: Int? = null,
-    val humidity: Int? = null
+    val temp: Double,
+    val feelsLike: Double,
+    val tempMin: Double,
+    val tempMax: Double,
+    val pressure: Int,
+    val humidity: Int
 
 )

@@ -1,5 +1,6 @@
 package com.dvt.kilimanjaro.ui.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,24 +21,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dvt.kilimanjaro.R
+import com.dvt.uicomponents.components.CustomProgress
 import com.dvt.uicomponents.theme.KilimanjaroTheme
 import com.ramcosta.composedestinations.annotation.Destination
+import androidx.compose.foundation.lazy.items
+import com.dvt.domain.model.Weather
 
 @Destination(start = true)
 @Composable
 fun HomeScreen(
-
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    HomeScreenContent()
+    when (uiState) {
+        UIState.Loading -> CustomProgress(contentDesc = stringResource(id = R.string.loading))
+        else -> HomeScreenContent(data = uiState.Data)
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
-
+    data: UIState.Data
 ) {
     Column(
         modifier = Modifier
@@ -120,7 +131,54 @@ fun HomeScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            //items(items = )
+            items(data.lastFive) { item ->
+                Row(
+                    modifier = Modifier.animateItemPlacement(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Column {
+                        Text(
+                            text = item.min,
+                            style = MaterialTheme.typography.h5,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "min",
+                            style = MaterialTheme.typography.subtitle1,
+                            color = Color.White
+                        )
+
+
+                    }
+                    Column {
+                        Text(
+                            text = item.current,
+                            style = MaterialTheme.typography.h5,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "current",
+                            style = MaterialTheme.typography.subtitle1,
+                            color = Color.White
+                        )
+
+
+                    }
+                    Column {
+                        Text(
+                            text = item.max,
+                            style = MaterialTheme.typography.h5,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "max",
+                            style = MaterialTheme.typography.subtitle1,
+                            color = Color.White
+                        )
+                    }
+
+                }
+            }
 
         }
     }
