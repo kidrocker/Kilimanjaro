@@ -14,13 +14,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    navigator: DestinationsNavigator,
     lastFiveUseCase: GetLastFiveUseCase
 ) : ViewModel() {
 
     val uiState: StateFlow<UIState> =
         lastFiveUseCase("", "").map(
-            UIState::Data,
+            UIState::WeatherData,
         ).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -29,7 +28,9 @@ class HomeViewModel @Inject constructor(
 }
     sealed interface UIState {
         object Loading : UIState
-        data class Data(
+        data class WeatherData(
             val lastFive: List<Weather>
         ) : UIState
+
+        object Empty:UIState
     }

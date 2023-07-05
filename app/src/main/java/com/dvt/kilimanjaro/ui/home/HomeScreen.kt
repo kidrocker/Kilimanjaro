@@ -30,6 +30,8 @@ import com.dvt.uicomponents.components.CustomProgress
 import com.dvt.uicomponents.theme.KilimanjaroTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dvt.domain.model.Weather
 
 @Destination(start = true)
@@ -40,15 +42,16 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (uiState) {
-        UIState.Loading -> CustomProgress(contentDesc = stringResource(id = R.string.loading))
-        else -> HomeScreenContent(data = uiState.Data)
+        is UIState.Loading -> CustomProgress(contentDesc = stringResource(id = R.string.loading))
+        is UIState.WeatherData -> HomeScreenContent(weatherData = (uiState as UIState.WeatherData).lastFive)
+        is UIState.Empty -> {} //TODO ADD EMPTY SCREEN
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
-    data: UIState.Data
+    weatherData: List<Weather>
 ) {
     Column(
         modifier = Modifier
@@ -131,7 +134,7 @@ fun HomeScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            items(data.lastFive) { item ->
+            items(weatherData) { item ->
                 Row(
                     modifier = Modifier.animateItemPlacement(),
                     horizontalArrangement = Arrangement.SpaceAround

@@ -1,5 +1,6 @@
 package com.dvt.network
 
+import com.dvt.network.retrofit.RetrofitNetwork
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,4 +32,12 @@ object NetworkModule {
                 },
         )
         .build()
+
+
+    @Provides
+    @Singleton
+    fun provideNetworkDataSource(
+        networkJson: Json,
+        okhttpCallFactory: Call.Factory
+    ): NetworkDataSource = RetrofitNetwork(networkJson, okhttpCallFactory)
 }
