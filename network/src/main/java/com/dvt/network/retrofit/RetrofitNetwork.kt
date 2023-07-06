@@ -2,6 +2,7 @@ package com.dvt.network.retrofit
 
 import com.dvt.network.BuildConfig
 import com.dvt.network.NetworkDataSource
+import com.dvt.network.model.NetworkFiveDay
 import com.dvt.network.model.NetworkWeather
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -30,6 +31,7 @@ class RetrofitNetwork @Inject constructor(
                         .url
                         .newBuilder()
                         .addQueryParameter("appid", BuildConfig.APP_ID)
+                        .addQueryParameter("units", "metric")
                         .build()
                     chain.proceed(chain.request().newBuilder().url(url).build())
                 }
@@ -43,9 +45,9 @@ class RetrofitNetwork @Inject constructor(
 
 
     override suspend fun getCurrentWeather(lat: String, lng: String): NetworkWeather =
-        networkApi.getCurrentWeather(lat, lng).data
+        networkApi.getCurrentWeather(lat, lng)
 
 
-    override suspend fun getLastFiveDays(lat: String, lng: String): List<NetworkWeather> =
-        networkApi.getForecast(lat, lng).data
+    override suspend fun getLastFiveDays(lat: String, lng: String): List<NetworkFiveDay> =
+        networkApi.getForecast(lat, lng).list
 }

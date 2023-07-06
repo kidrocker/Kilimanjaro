@@ -1,5 +1,10 @@
 package com.dvt.kilimanjaro.ui.home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -30,99 +36,184 @@ import com.dvt.uicomponents.components.CustomProgress
 import com.dvt.uicomponents.theme.KilimanjaroTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import com.dvt.domain.model.Day
+import com.dvt.domain.model.Favorite
 import com.dvt.domain.model.Weather
+import com.dvt.kilimanjaro.ui.destinations.FavoritesScreenDestination
+import com.dvt.uicomponents.theme.colorCloudy
+import com.dvt.uicomponents.theme.colorRainy
+import com.dvt.uicomponents.theme.colorSunny
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-@Destination(start = true)
+@Destination
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
 
     when (uiState) {
-        is UIState.Loading -> CustomProgress(contentDesc = stringResource(id = R.string.loading))
-        is UIState.WeatherData -> HomeScreenContent(weatherData = (uiState as UIState.WeatherData).lastFive)
-        is UIState.Empty -> {} //TODO ADD EMPTY SCREEN
+        is UIState.WeatherData -> HomeScreenContent(
+            navigator = navigator,
+            favorite = (uiState as UIState.WeatherData).favorite,
+            current = (uiState as UIState.WeatherData).current,
+            fiveDay = (uiState as UIState.WeatherData).lastFive
+        )
+
+        is UIState.Loading -> LoadingScreen()
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CustomProgress(contentDesc = stringResource(id = R.string.loading))
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreenContent(
-    weatherData: List<Weather>
+    navigator: DestinationsNavigator,
+    favorite: Favorite,
+    current: Weather?,
+    fiveDay: List<Day>
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.primaryVariant)
+            .background(
+                when (current?.main) {
+                    "Clouds" -> colorCloudy
+                    "Rain" -> colorRainy
+                    else -> colorSunny
+                }
+            )
     ) {
 
-        Box(modifier = Modifier.weight(1f)) {
 
+        Box(modifier = Modifier.weight(1f)) {
             Image(
                 contentScale = ContentScale.FillBounds,
-                painter = painterResource(id = R.mipmap.forest_sunny),
+                painter = painterResource(
+                    id = when (current?.main) {
+                        "Clouds" -> R.mipmap.forest_cloudy
+                        "Rain" -> R.mipmap.forest_rainy
+                        else -> R.mipmap.forest_sunny
+                    }
+                ),
                 contentDescription = "",
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
             )
+            TopAppBar(
+                elevation = 0.dp,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth(),
+                backgroundColor = Color.Transparent,
+                title = { Text(text = favorite.name, color = Color.White) },
+                navigationIcon =
+                {
+                    IconButton(onClick = {
+                        navigator.navigate(FavoritesScreenDestination)
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.round_menu_24),
+                            tint = Color.White,
+                            contentDescription = ""
+                        )
+                    }
+                })
 
-            Text(
-                text = "18c",
+            Column(
                 modifier = Modifier.align(Alignment.Center),
-                color = Color.White,
-                style = MaterialTheme.typography.h1
-            )
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AnimatedContent(
+                    targetState = current?.current,
+                    transitionSpec = {
+                        slideInVertically { it } with slideOutVertically { -it }
+                    }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.degrees, current?.current ?: 0),
+                        color = Color.White,
+                        style = MaterialTheme.typography.h3,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Text(
+                    text = current?.main ?: "",
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.subtitle1
+                )
+            }
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround
+                .padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "18c",
-                    style = MaterialTheme.typography.h5,
+                    text = stringResource(id = R.string.degrees, current?.min ?: 0),
+                    style = MaterialTheme.typography.subtitle1,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.White
                 )
                 Text(
-                    text = "min",
+                    text = stringResource(R.string.min),
                     style = MaterialTheme.typography.subtitle1,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(id = R.string.degrees, current?.current ?: 0),
+                    style = MaterialTheme.typography.subtitle1,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.White
+                )
+                Text(
+                    text = stringResource(R.string.current),
+                    style = MaterialTheme.typography.subtitle1,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
 
 
             }
-            Column {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "18c",
-                    style = MaterialTheme.typography.h5,
-                    color = Color.White
-                )
-                Text(
-                    text = "current",
+                    text = stringResource(id = R.string.degrees, current?.max ?: 0),
                     style = MaterialTheme.typography.subtitle1,
-                    color = Color.White
-                )
-
-
-            }
-            Column {
-                Text(
-                    text = "18c",
-                    style = MaterialTheme.typography.h5,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.White
                 )
                 Text(
-                    text = "max",
+                    text = stringResource(R.string.max),
                     style = MaterialTheme.typography.subtitle1,
-                    color = Color.White
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -134,65 +225,54 @@ fun HomeScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            items(weatherData) { item ->
+            items(fiveDay) { item ->
                 Row(
-                    modifier = Modifier.animateItemPlacement(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    modifier = Modifier
+                        .animateItemPlacement()
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, start = 12.dp, end = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column {
-                        Text(
-                            text = item.min,
-                            style = MaterialTheme.typography.h5,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "min",
-                            style = MaterialTheme.typography.subtitle1,
-                            color = Color.White
-                        )
 
+                    Text(
+                        text = item.day,
+                        style = MaterialTheme.typography.h6,
+                        color = Color.LightGray,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                    }
-                    Column {
-                        Text(
-                            text = item.current,
-                            style = MaterialTheme.typography.h5,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "current",
-                            style = MaterialTheme.typography.subtitle1,
-                            color = Color.White
-                        )
+                    Image(
+                        painter = painterResource(
+                            id = when (item.weather) {
+                                "Clouds" -> R.mipmap.partlysunny
+                                "Rain" -> R.mipmap.rain
+                                else -> R.mipmap.clear
+                            }
+                        ),
+                        contentDescription = "",
+                        modifier = Modifier.size(32.dp)
+                    )
 
+                    Text(
+                        text = stringResource(id = R.string.degrees, item.degrees),
+                        style = MaterialTheme.typography.h6,
+                        color = Color.LightGray,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Right
+                    )
 
-                    }
-                    Column {
-                        Text(
-                            text = item.max,
-                            style = MaterialTheme.typography.h5,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "max",
-                            style = MaterialTheme.typography.subtitle1,
-                            color = Color.White
-                        )
-                    }
 
                 }
             }
 
         }
     }
-
 }
-
 
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
     KilimanjaroTheme {
-        HomeScreen()
+        //HomeScreen()
     }
 }

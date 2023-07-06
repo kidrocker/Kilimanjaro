@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Kilimanjaro</string>
     <string name="loading">Loading data</string>
+    <string name="degrees">%1$s \u00B0</string>
+    <string name="current">Current</string>
+    <string name="max">Max</string>
+    <string name="min">Min</string>
 </resources>

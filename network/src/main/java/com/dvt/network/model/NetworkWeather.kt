@@ -4,23 +4,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkWeather(
-    val base: String,
-    val main: Main,
-    val visibility: Int,
-    val dt: Int,
-    val timezone: Int,
+    val main: NetworkMain,
     val id: Int,
-    val name: String,
-    val cod: Int
+//    @SerialName("dt_txt")
+//    val dt: String,
+    val weather: List<Weather>
 )
 
-@Serializable
-data class Main(
-    val temp: Double,
-    val feelsLike: Double,
-    val tempMin: Double,
-    val tempMax: Double,
-    val pressure: Int,
-    val humidity: Int
 
-)
+

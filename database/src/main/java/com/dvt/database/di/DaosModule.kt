@@ -1,7 +1,8 @@
 package com.dvt.database.di
 
 import com.dvt.database.KilimanjaroDatabase
-import com.dvt.database.dao.WeatherDao
+import com.dvt.database.dao.CurrentDao
+import com.dvt.database.dao.FiveDayDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,7 +12,13 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object DaosModule {
     @Provides
-    fun provideWeatherDao(
+    fun provideFiveDayDao(
         database: KilimanjaroDatabase
-    ):WeatherDao = database.weatherDao()
+    ): FiveDayDao = database.fiveDayDao()
+
+
+    @Provides
+    fun provideCurrentDao(
+        database: KilimanjaroDatabase
+    ): CurrentDao = database.currentDao()
 }

@@ -1,5 +1,7 @@
-package com.dvt.network
+package com.dvt.network.di
 
+import com.dvt.network.BuildConfig
+import com.dvt.network.NetworkDataSource
 import com.dvt.network.retrofit.RetrofitNetwork
 import dagger.Module
 import dagger.Provides
